@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendar</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="calendar-wrap">
+    <header class="cal-header">
+      <button class="nav-btn" id="btn-prev" aria-label="Previous month">&#8249;</button>
+      <h1 class="cal-title" id="cal-title"></h1>
+      <button class="nav-btn" id="btn-next" aria-label="Next month">&#8250;</button>
+    </header>
+
+    <div class="day-labels" aria-hidden="true">
+      <span>Sun</span><span>Mon</span><span>Tue</span>
+      <span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+    </div>
+
+    <div class="cal-grid" id="cal-grid" role="grid"></div>
+  </div>
+
+  <!-- Add / Edit modal -->
+  <dialog class="event-modal" id="event-modal" aria-labelledby="modal-title">
+    <div class="modal-inner">
+      <h2 class="modal-title" id="modal-title">Add Event</h2>
+
+      <form id="event-form" novalidate>
+        <input type="hidden" id="event-id" />
+
+        <div class="field">
+          <label for="event-title">Title <span class="required">*</span></label>
+          <input type="text" id="event-title" maxlength="100" autocomplete="off" />
+          <span class="field-error" id="err-title"></span>
+        </div>
+
+        <div class="field">
+          <label for="event-date">Date <span class="required">*</span></label>
+          <input type="date" id="event-date" />
+          <span class="field-error" id="err-date"></span>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="event-start">Start time</label>
+            <input type="time" id="event-start" />
+          </div>
+          <div class="field">
+            <label for="event-end">End time</label>
+            <input type="time" id="event-end" />
+            <span class="field-error" id="err-time"></span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="event-notes">Notes</label>
+          <textarea id="event-notes" maxlength="500" rows="3"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-danger" id="btn-delete" hidden>Delete</button>
+          <div class="modal-actions-right">
+            <button type="button" class="btn-secondary" id="btn-cancel">Cancel</button>
+            <button type="submit" class="btn-primary" id="btn-save">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
