@@ -4,7 +4,314 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Calendar</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+/* ── Reset & custom properties ─────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #f5f5f7;
+  --surface:     #ffffff;
+  --border:      #e0e0e0;
+  --muted:       #9e9e9e;
+  --muted-bg:    #f9f9f9;
+  --today-ring:  #1976d2;
+  --today-bg:    #e3f0ff;
+  --accent:      #1976d2;
+  --accent-dark: #1256a0;
+  --danger:      #d32f2f;
+  --danger-dark: #b71c1c;
+  --text:        #212121;
+  --text-light:  #616161;
+  --radius:      8px;
+  --shadow:      0 4px 24px rgba(0,0,0,.12);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ── Calendar wrapper ──────────────────────────────────────── */
+.calendar-wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* ── Header ────────────────────────────────────────────────── */
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.cal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: .01em;
+}
+
+.nav-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, border-color .15s;
+}
+.nav-btn:hover { background: var(--bg); border-color: var(--accent); }
+
+/* ── Day-of-week labels ────────────────────────────────────── */
+.day-labels {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid var(--border);
+}
+
+.day-labels span {
+  text-align: center;
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-light);
+  padding: .5rem 0;
+}
+
+/* ── Calendar grid ─────────────────────────────────────────── */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.day-cell {
+  min-height: 100px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: .35rem .4rem .4rem;
+  cursor: pointer;
+  transition: background .12s;
+  position: relative;
+  overflow: hidden;
+}
+.day-cell:nth-child(7n) { border-right: none; }
+.day-cell:hover { background: var(--bg); }
+
+.day-cell.outside {
+  background: var(--muted-bg);
+  cursor: default;
+}
+.day-cell.outside .day-num { color: var(--muted); }
+.day-cell.outside:hover { background: var(--muted-bg); }
+
+.day-cell.today .day-num {
+  background: var(--today-ring);
+  color: #fff;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.day-cell.today { background: var(--today-bg); }
+
+.day-num {
+  font-size: .8rem;
+  font-weight: 500;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: .2rem;
+  flex-shrink: 0;
+}
+
+/* ── Event chips ───────────────────────────────────────────── */
+.event-chip {
+  display: block;
+  background: var(--accent);
+  color: #fff;
+  font-size: .7rem;
+  font-weight: 500;
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: background .12s;
+  min-height: 20px;
+  line-height: 18px;
+}
+.event-chip:hover { background: var(--accent-dark); }
+
+.overflow-label {
+  font-size: .68rem;
+  color: var(--text-light);
+  padding-left: 2px;
+  cursor: pointer;
+}
+
+/* ── Modal ─────────────────────────────────────────────────── */
+.event-modal {
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0;
+  width: min(480px, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}
+
+.event-modal::backdrop {
+  background: rgba(0,0,0,.4);
+  backdrop-filter: blur(2px);
+}
+
+.modal-inner { padding: 1.5rem; }
+
+.modal-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+}
+
+/* ── Form fields ───────────────────────────────────────────── */
+.field { display: flex; flex-direction: column; gap: .3rem; margin-bottom: 1rem; }
+
+.field label {
+  font-size: .82rem;
+  font-weight: 500;
+  color: var(--text-light);
+}
+
+.field input,
+.field textarea {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .5rem .65rem;
+  font-size: .9rem;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--surface);
+  transition: border-color .15s, box-shadow .15s;
+  width: 100%;
+}
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(25,118,210,.15);
+}
+.field input.error,
+.field textarea.error { border-color: var(--danger); }
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem;
+}
+
+.field-error {
+  font-size: .76rem;
+  color: var(--danger);
+  min-height: 1em;
+}
+
+.required { color: var(--danger); }
+
+/* ── Modal actions ─────────────────────────────────────────── */
+.modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.25rem;
+  gap: .5rem;
+}
+
+.modal-actions-right {
+  display: flex;
+  gap: .5rem;
+  margin-left: auto;
+}
+
+button {
+  border: none;
+  border-radius: 6px;
+  padding: .5rem 1.1rem;
+  font-size: .88rem;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 44px;
+  transition: background .15s, opacity .15s;
+}
+
+.btn-primary   { background: var(--accent);  color: #fff; }
+.btn-primary:hover { background: var(--accent-dark); }
+
+.btn-secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--accent); }
+
+.btn-danger    { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: var(--danger-dark); }
+
+.btn-danger.confirming { background: var(--danger-dark); }
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  body { padding: .75rem .5rem 2rem; }
+
+  .cal-title { font-size: 1rem; }
+
+  .day-cell {
+    min-height: 64px;
+    padding: .25rem .2rem .2rem;
+  }
+
+  .day-num { font-size: .72rem; width: 22px; height: 22px; }
+
+  .day-cell.today .day-num { width: 22px; height: 22px; }
+
+  .event-chip { font-size: .62rem; padding: 0 3px; }
+
+  .day-labels span { font-size: .62rem; padding: .35rem 0; }
+
+  .event-modal {
+    width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+    margin: 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+  }
+
+  .field-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 380px) {
+  .day-labels span { font-size: .55rem; letter-spacing: 0; }
+  .day-cell { min-height: 52px; }
+}
+  </style>
 </head>
 <body>
 
@@ -71,6 +378,308 @@
     </div>
   </dialog>
 
-  <script src="app.js"></script>
+  <script>
+'use strict';
+
+/* ── State ─────────────────────────────────────────────────── */
+const state = {
+  year:   new Date().getFullYear(),
+  month:  new Date().getMonth(),   // 0-indexed
+  events: [],
+  editingId: null,
+};
+
+const STORAGE_KEY = 'calendarEvents';
+
+/* ── UUID fallback (works on file:// and older browsers) ───── */
+function uuid() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
+/* ── LocalStorage helpers ──────────────────────────────────── */
+function loadEvents() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveEvents() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.events));
+}
+
+/* ── Event CRUD ────────────────────────────────────────────── */
+function addEvent(data) {
+  state.events.push({ id: uuid(), ...data });
+  saveEvents();
+}
+
+function updateEvent(id, data) {
+  const idx = state.events.findIndex(e => e.id === id);
+  if (idx !== -1) {
+    state.events[idx] = { id, ...data };
+    saveEvents();
+  }
+}
+
+function deleteEvent(id) {
+  state.events = state.events.filter(e => e.id !== id);
+  saveEvents();
+}
+
+/* ── Calendar rendering ────────────────────────────────────── */
+const MONTHS = [
+  'January','February','March','April','May','June',
+  'July','August','September','October','November','December',
+];
+
+function renderCalendar() {
+  const { year, month } = state;
+
+  document.getElementById('cal-title').textContent = `${MONTHS[month]} ${year}`;
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  const firstDay    = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPrev  = new Date(year, month, 0).getDate();
+
+  const today    = new Date();
+  const todayStr = toDateStr(today.getFullYear(), today.getMonth(), today.getDate());
+
+  const eventMap = buildEventMap();
+
+  for (let i = 0; i < 42; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'day-cell';
+    cell.setAttribute('role', 'gridcell');
+
+    let dayNum, cellYear, cellMonth;
+
+    if (i < firstDay) {
+      dayNum     = daysInPrev - firstDay + i + 1;
+      cellMonth  = month - 1 < 0 ? 11 : month - 1;
+      cellYear   = month - 1 < 0 ? year - 1 : year;
+      cell.classList.add('outside');
+    } else if (i < firstDay + daysInMonth) {
+      dayNum    = i - firstDay + 1;
+      cellMonth = month;
+      cellYear  = year;
+    } else {
+      dayNum    = i - firstDay - daysInMonth + 1;
+      cellMonth = month + 1 > 11 ? 0 : month + 1;
+      cellYear  = month + 1 > 11 ? year + 1 : year;
+      cell.classList.add('outside');
+    }
+
+    const dateStr = toDateStr(cellYear, cellMonth, dayNum);
+    if (dateStr === todayStr) cell.classList.add('today');
+
+    const numEl = document.createElement('div');
+    numEl.className = 'day-num';
+    numEl.textContent = dayNum;
+    cell.appendChild(numEl);
+
+    const cellEvents = eventMap[dateStr] || [];
+    const MAX_VISIBLE = 3;
+    cellEvents.slice(0, MAX_VISIBLE).forEach(ev => cell.appendChild(createChip(ev)));
+
+    if (cellEvents.length > MAX_VISIBLE) {
+      const more = document.createElement('span');
+      more.className = 'overflow-label';
+      more.textContent = `+${cellEvents.length - MAX_VISIBLE} more`;
+      more.addEventListener('click', e => { e.stopPropagation(); openModal(dateStr); });
+      cell.appendChild(more);
+    }
+
+    if (!cell.classList.contains('outside')) {
+      cell.addEventListener('click', () => openModal(dateStr));
+    }
+
+    grid.appendChild(cell);
+  }
+}
+
+function createChip(ev) {
+  const chip = document.createElement('span');
+  chip.className = 'event-chip';
+  chip.textContent = ev.start ? `${ev.start} ${ev.title}` : ev.title;
+  chip.setAttribute('title', ev.title);
+  chip.setAttribute('role', 'button');
+  chip.setAttribute('tabindex', '0');
+  chip.addEventListener('click', e => { e.stopPropagation(); openModal(ev.date, ev.id); });
+  chip.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault(); e.stopPropagation(); openModal(ev.date, ev.id);
+    }
+  });
+  return chip;
+}
+
+function buildEventMap() {
+  const map = {};
+  state.events.forEach(ev => {
+    if (!map[ev.date]) map[ev.date] = [];
+    map[ev.date].push(ev);
+    map[ev.date].sort((a, b) => (a.start || '').localeCompare(b.start || ''));
+  });
+  return map;
+}
+
+/* ── Date utility — m is 0-indexed ────────────────────────── */
+function toDateStr(y, m, d) {
+  return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+}
+
+/* ── Modal elements ────────────────────────────────────────── */
+const modal      = document.getElementById('event-modal');
+const form       = document.getElementById('event-form');
+const modalTitle = document.getElementById('modal-title');
+const fTitle     = document.getElementById('event-title');
+const fDate      = document.getElementById('event-date');
+const fStart     = document.getElementById('event-start');
+const fEnd       = document.getElementById('event-end');
+const fNotes     = document.getElementById('event-notes');
+const fId        = document.getElementById('event-id');
+const errTitle   = document.getElementById('err-title');
+const errDate    = document.getElementById('err-date');
+const errTime    = document.getElementById('err-time');
+const btnDelete  = document.getElementById('btn-delete');
+const btnSave    = document.getElementById('btn-save');
+
+let deleteConfirming = false;
+
+function openModal(dateStr, eventId = null) {
+  clearErrors();
+  deleteConfirming = false;
+  btnDelete.textContent = 'Delete';
+  btnDelete.classList.remove('confirming');
+
+  if (eventId) {
+    const ev = state.events.find(e => e.id === eventId);
+    if (!ev) return;
+    state.editingId   = eventId;
+    modalTitle.textContent = 'Edit Event';
+    btnSave.textContent    = 'Update';
+    btnDelete.hidden  = false;
+    fId.value    = ev.id;
+    fTitle.value = ev.title;
+    fDate.value  = ev.date;
+    fStart.value = ev.start || '';
+    fEnd.value   = ev.end   || '';
+    fNotes.value = ev.notes || '';
+  } else {
+    state.editingId   = null;
+    modalTitle.textContent = 'Add Event';
+    btnSave.textContent    = 'Save';
+    btnDelete.hidden  = true;
+    fId.value    = '';
+    fTitle.value = '';
+    fDate.value  = dateStr;
+    fStart.value = '';
+    fEnd.value   = '';
+    fNotes.value = '';
+  }
+
+  modal.showModal();
+  fTitle.focus();
+}
+
+function closeModal() {
+  modal.close();
+  state.editingId = null;
+}
+
+/* ── Validation ────────────────────────────────────────────── */
+function validate() {
+  clearErrors();
+  let ok = true;
+  if (!fTitle.value.trim()) { showError(errTitle, fTitle, 'Title is required.'); ok = false; }
+  if (!fDate.value)         { showError(errDate,  fDate,  'Date is required.');  ok = false; }
+  if (fStart.value && fEnd.value && fEnd.value <= fStart.value) {
+    showError(errTime, fEnd, 'End time must be after start time.');
+    ok = false;
+  }
+  return ok;
+}
+
+function showError(errEl, inputEl, msg) {
+  errEl.textContent = msg;
+  inputEl.classList.add('error');
+}
+
+function clearErrors() {
+  [errTitle, errDate, errTime].forEach(el => { el.textContent = ''; });
+  [fTitle, fDate, fEnd].forEach(el => el.classList.remove('error'));
+}
+
+/* ── Form submit ───────────────────────────────────────────── */
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  if (!validate()) return;
+  const data = {
+    title: fTitle.value.trim(),
+    date:  fDate.value,
+    start: fStart.value || null,
+    end:   fEnd.value   || null,
+    notes: fNotes.value.trim() || null,
+  };
+  if (state.editingId) { updateEvent(state.editingId, data); }
+  else                 { addEvent(data); }
+  closeModal();
+  renderCalendar();
+});
+
+/* ── Delete with two-click confirmation ────────────────────── */
+btnDelete.addEventListener('click', () => {
+  if (!deleteConfirming) {
+    deleteConfirming = true;
+    btnDelete.textContent = 'Confirm delete?';
+    btnDelete.classList.add('confirming');
+    return;
+  }
+  deleteEvent(state.editingId);
+  closeModal();
+  renderCalendar();
+});
+
+/* ── Cancel & backdrop close ───────────────────────────────── */
+document.getElementById('btn-cancel').addEventListener('click', closeModal);
+
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+modal.addEventListener('close', () => {
+  deleteConfirming = false;
+  btnDelete.classList.remove('confirming');
+  btnDelete.textContent = 'Delete';
+});
+
+/* ── Navigation ────────────────────────────────────────────── */
+document.getElementById('btn-prev').addEventListener('click', () => {
+  state.month--;
+  if (state.month < 0) { state.month = 11; state.year--; }
+  renderCalendar();
+});
+
+document.getElementById('btn-next').addEventListener('click', () => {
+  state.month++;
+  if (state.month > 11) { state.month = 0; state.year++; }
+  renderCalendar();
+});
+
+/* ── Init ──────────────────────────────────────────────────── */
+state.events = loadEvents();
+renderCalendar();
+  </script>
 </body>
 </html>
