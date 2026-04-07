@@ -10,6 +10,17 @@ const state = {
 
 const STORAGE_KEY = 'calendarEvents';
 
+/* ── UUID fallback (works on file:// and older browsers) ───── */
+function uuid() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
 /* ── LocalStorage helpers ──────────────────────────────────── */
 function loadEvents() {
   try {
@@ -27,7 +38,7 @@ function saveEvents() {
 
 /* ── Event CRUD ────────────────────────────────────────────── */
 function addEvent(data) {
-  state.events.push({ id: crypto.randomUUID(), ...data });
+  state.events.push({ id: uuid(), ...data });
   saveEvents();
 }
 
@@ -166,6 +177,7 @@ function buildEventMap() {
 }
 
 /* ── Date utility ──────────────────────────────────────────── */
+// m is 0-indexed (same as Date.getMonth())
 function toDateStr(y, m, d) {
   return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 }
@@ -331,6 +343,10 @@ document.getElementById('btn-next').addEventListener('click', () => {
 
 /* ── Init ──────────────────────────────────────────────────── */
 function init() {
+  if (!modal.showModal) {
+    alert('이 브라우저는 <dialog> 요소를 지원하지 않습니다. Chrome, Firefox, Safari 최신 버전을 사용해주세요.');
+    return;
+  }
   state.events = loadEvents();
   renderCalendar();
 }
