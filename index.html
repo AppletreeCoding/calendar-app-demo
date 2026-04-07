@@ -1,204 +1,261 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calendar</title>
+  <title>캘린더</title>
   <style>
-/* ── Reset & custom properties ─────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:          #f5f5f7;
-  --surface:     #ffffff;
-  --border:      #e0e0e0;
-  --muted:       #9e9e9e;
-  --muted-bg:    #f9f9f9;
-  --today-ring:  #1976d2;
-  --today-bg:    #e3f0ff;
-  --accent:      #1976d2;
-  --accent-dark: #1256a0;
-  --danger:      #d32f2f;
-  --danger-dark: #b71c1c;
-  --text:        #212121;
-  --text-light:  #616161;
-  --radius:      8px;
-  --shadow:      0 4px 24px rgba(0,0,0,.12);
+  --blue:        #1a73e8;
+  --blue-light:  #e8f0fe;
+  --blue-dark:   #1765cc;
+  --border:      #dadce0;
+  --text:        #3c4043;
+  --text-light:  #70757a;
+  --danger:      #d93025;
+  --danger-bg:   #fce8e6;
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: var(--bg);
+html, body {
+  height: 100%;
+  font-family: "Google Sans", Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--text);
-  min-height: 100vh;
-  padding: 1.5rem 1rem 3rem;
-}
-
-/* ── Calendar wrapper ──────────────────────────────────────── */
-.calendar-wrap {
-  max-width: 900px;
-  margin: 0 auto;
-  background: var(--surface);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  background: #fff;
   overflow: hidden;
 }
 
-/* ── Header ────────────────────────────────────────────────── */
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
 .cal-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem;
+  padding: 8px 20px;
+  height: 65px;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  gap: 8px;
 }
 
-.cal-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: .01em;
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
-.nav-btn {
-  background: none;
+.btn-today {
+  padding: 7px 16px;
   border: 1px solid var(--border);
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  font-size: 1.4rem;
-  line-height: 1;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 14px;
   cursor: pointer;
   color: var(--text);
+  font-family: inherit;
+  white-space: nowrap;
+  line-height: 1;
+}
+.btn-today:hover { background: #f1f3f4; }
+
+.nav-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background .15s, border-color .15s;
+  color: var(--text-light);
+  font-size: 22px;
+  flex-shrink: 0;
 }
-.nav-btn:hover { background: var(--bg); border-color: var(--accent); }
+.nav-btn:hover { background: #f1f3f4; }
 
-/* ── Day-of-week labels ────────────────────────────────────── */
+.cal-title {
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-light);
+}
+.icon-btn:hover { background: #f1f3f4; }
+.icon-btn.active { background: var(--blue-light); color: var(--blue); }
+.icon-btn.active:hover { background: #d2e3fc; }
+
+.view-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--text);
+  font-family: inherit;
+  white-space: nowrap;
+}
+.view-btn:hover { background: #f1f3f4; }
+
+.hd { width: 1px; height: 24px; background: var(--border); margin: 0 4px; flex-shrink: 0; }
+
+/* ── Day-of-week labels ──────────────────────────────────────── */
 .day-labels {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .day-labels span {
   text-align: center;
-  font-size: .72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .06em;
+  font-size: 11px;
   color: var(--text-light);
-  padding: .5rem 0;
+  padding: 8px 0 6px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
-/* ── Calendar grid ─────────────────────────────────────────── */
+/* ── Calendar grid ───────────────────────────────────────────── */
 .cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  flex: 1;
+  min-height: 0;
 }
 
 .day-cell {
-  min-height: 100px;
   border-right: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  padding: .35rem .4rem .4rem;
+  padding: 4px 4px 2px;
   cursor: pointer;
-  transition: background .12s;
-  position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 .day-cell:nth-child(7n) { border-right: none; }
-.day-cell:hover { background: var(--bg); }
+.day-cell:hover { background: #f8f9fa; }
+.day-cell.outside { cursor: default; }
+.day-cell.outside:hover { background: transparent; }
 
-.day-cell.outside {
-  background: var(--muted-bg);
-  cursor: default;
-}
-.day-cell.outside .day-num { color: var(--muted); }
-.day-cell.outside:hover { background: var(--muted-bg); }
-
-.day-cell.today .day-num {
-  background: var(--today-ring);
-  color: #fff;
-  border-radius: 50%;
-  width: 26px;
-  height: 26px;
+/* ── Day number ──────────────────────────────────────────────── */
+.day-num-wrap {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding: 2px 2px 4px;
 }
-.day-cell.today { background: var(--today-bg); }
 
 .day-num {
-  font-size: .8rem;
-  font-weight: 500;
-  width: 26px;
-  height: 26px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text);
+  min-width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: .2rem;
-  flex-shrink: 0;
+  border-radius: 14px;
+  padding: 0 6px;
 }
 
-/* ── Event chips ───────────────────────────────────────────── */
+.day-cell.outside .day-num {
+  color: var(--text-light);
+}
+
+.day-cell.today .day-num {
+  background: var(--blue);
+  color: #fff;
+  font-weight: 500;
+  min-width: 28px;
+  padding: 0;
+  width: 28px;
+  border-radius: 50%;
+}
+
+/* ── Event bars ──────────────────────────────────────────────── */
 .event-chip {
   display: block;
-  background: var(--accent);
+  background: var(--blue);
   color: #fff;
-  font-size: .7rem;
-  font-weight: 500;
-  border-radius: 3px;
-  padding: 1px 5px;
+  font-size: 12px;
+  font-weight: 400;
+  border-radius: 4px;
+  padding: 1px 6px;
   margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
-  transition: background .12s;
-  min-height: 20px;
-  line-height: 18px;
+  line-height: 20px;
+  width: 100%;
 }
-.event-chip:hover { background: var(--accent-dark); }
+.event-chip:hover { filter: brightness(0.9); }
 
 .overflow-label {
-  font-size: .68rem;
+  font-size: 11px;
   color: var(--text-light);
-  padding-left: 2px;
+  padding: 1px 6px;
   cursor: pointer;
+  border-radius: 4px;
 }
+.overflow-label:hover { background: #f1f3f4; }
 
-/* ── Modal ─────────────────────────────────────────────────── */
+/* ── Modal ───────────────────────────────────────────────────── */
 .event-modal {
   border: none;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2), 0 6px 20px rgba(0,0,0,.15);
   padding: 0;
-  width: min(480px, calc(100vw - 2rem));
+  width: min(460px, calc(100vw - 2rem));
   max-height: calc(100vh - 2rem);
   overflow-y: auto;
 }
 
-.event-modal::backdrop {
-  background: rgba(0,0,0,.4);
-  backdrop-filter: blur(2px);
-}
+.event-modal::backdrop { background: rgba(0,0,0,.25); }
 
-.modal-inner { padding: 1.5rem; }
+.modal-inner { padding: 24px; }
 
 .modal-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 1.25rem;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  color: var(--text);
 }
 
-/* ── Form fields ───────────────────────────────────────────── */
-.field { display: flex; flex-direction: column; gap: .3rem; margin-bottom: 1rem; }
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
 
 .field label {
-  font-size: .82rem;
+  font-size: 12px;
   font-weight: 500;
   color: var(--text-light);
 }
@@ -206,218 +263,265 @@ body {
 .field input,
 .field textarea {
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: .5rem .65rem;
-  font-size: .9rem;
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-size: 14px;
   font-family: inherit;
   color: var(--text);
-  background: var(--surface);
-  transition: border-color .15s, box-shadow .15s;
+  background: #fff;
   width: 100%;
+  transition: border-color .15s, box-shadow .15s;
 }
 .field input:focus,
 .field textarea:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(25,118,210,.15);
+  border-color: var(--blue);
+  box-shadow: 0 0 0 2px rgba(26,115,232,.2);
 }
 .field input.error,
 .field textarea.error { border-color: var(--danger); }
 
-.field-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: .75rem;
-}
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-.field-error {
-  font-size: .76rem;
-  color: var(--danger);
-  min-height: 1em;
-}
+.field-error { font-size: 12px; color: var(--danger); min-height: 1em; }
 
 .required { color: var(--danger); }
 
-/* ── Modal actions ─────────────────────────────────────────── */
 .modal-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 1.25rem;
-  gap: .5rem;
+  margin-top: 20px;
+  gap: 8px;
 }
 
-.modal-actions-right {
-  display: flex;
-  gap: .5rem;
-  margin-left: auto;
-}
+.modal-actions-right { display: flex; gap: 8px; margin-left: auto; }
 
-button {
+button { font-family: inherit; }
+
+.btn-primary {
+  background: var(--blue);
+  color: #fff;
   border: none;
-  border-radius: 6px;
-  padding: .5rem 1.1rem;
-  font-size: .88rem;
+  border-radius: 4px;
+  padding: 8px 24px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  min-height: 44px;
-  transition: background .15s, opacity .15s;
+  min-height: 36px;
 }
+.btn-primary:hover { background: var(--blue-dark); }
 
-.btn-primary   { background: var(--accent);  color: #fff; }
-.btn-primary:hover { background: var(--accent-dark); }
+.btn-secondary {
+  background: none;
+  color: var(--blue);
+  border: none;
+  border-radius: 4px;
+  padding: 8px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 36px;
+}
+.btn-secondary:hover { background: var(--blue-light); }
 
-.btn-secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
-.btn-secondary:hover { border-color: var(--accent); }
+.btn-danger {
+  background: none;
+  color: var(--danger);
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 36px;
+}
+.btn-danger:hover { background: var(--danger-bg); }
+.btn-danger.confirming { background: var(--danger-bg); }
 
-.btn-danger    { background: var(--danger); color: #fff; }
-.btn-danger:hover { background: var(--danger-dark); }
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  html, body { overflow: auto; }
 
-.btn-danger.confirming { background: var(--danger-dark); }
+  .header-right { display: none; }
 
-/* ── Responsive ────────────────────────────────────────────── */
-@media (max-width: 600px) {
-  body { padding: .75rem .5rem 2rem; }
+  .cal-title { font-size: 16px; }
 
-  .cal-title { font-size: 1rem; }
-
-  .day-cell {
-    min-height: 64px;
-    padding: .25rem .2rem .2rem;
-  }
-
-  .day-num { font-size: .72rem; width: 22px; height: 22px; }
-
-  .day-cell.today .day-num { width: 22px; height: 22px; }
-
-  .event-chip { font-size: .62rem; padding: 0 3px; }
-
-  .day-labels span { font-size: .62rem; padding: .35rem 0; }
+  .day-cell { min-height: 60px; }
 
   .event-modal {
     width: 100vw;
     max-height: 100vh;
     border-radius: 0;
-    margin: 0;
     position: fixed;
     bottom: 0;
     left: 0;
+    margin: 0;
   }
 
   .field-row { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 380px) {
-  .day-labels span { font-size: .55rem; letter-spacing: 0; }
-  .day-cell { min-height: 52px; }
 }
   </style>
 </head>
 <body>
 
-  <div class="calendar-wrap">
-    <header class="cal-header">
-      <button class="nav-btn" id="btn-prev" aria-label="Previous month">&#8249;</button>
-      <h1 class="cal-title" id="cal-title"></h1>
-      <button class="nav-btn" id="btn-next" aria-label="Next month">&#8250;</button>
-    </header>
-
-    <div class="day-labels" aria-hidden="true">
-      <span>Sun</span><span>Mon</span><span>Tue</span>
-      <span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-    </div>
-
-    <div class="cal-grid" id="cal-grid" role="grid"></div>
+<header class="cal-header">
+  <div class="header-left">
+    <button class="btn-today" id="btn-today">오늘</button>
+    <button class="nav-btn" id="btn-prev" aria-label="이전 달">&#8249;</button>
+    <button class="nav-btn" id="btn-next" aria-label="다음 달">&#8250;</button>
+    <h1 class="cal-title" id="cal-title"></h1>
   </div>
 
-  <!-- Add / Edit modal -->
-  <dialog class="event-modal" id="event-modal" aria-labelledby="modal-title">
-    <div class="modal-inner">
-      <h2 class="modal-title" id="modal-title">Add Event</h2>
+  <div class="header-right">
+    <!-- Search -->
+    <button class="icon-btn" aria-label="검색">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </button>
+    <!-- Help -->
+    <button class="icon-btn" aria-label="도움말">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+        <line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3"/>
+      </svg>
+    </button>
+    <!-- Settings -->
+    <button class="icon-btn" aria-label="설정">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
 
-      <form id="event-form" novalidate>
-        <input type="hidden" id="event-id" />
+    <div class="hd"></div>
 
+    <!-- View selector -->
+    <button class="view-btn" aria-label="월 보기">
+      월
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </button>
+
+    <div class="hd"></div>
+
+    <!-- Calendar (active) -->
+    <button class="icon-btn active" aria-label="캘린더">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5z"/>
+      </svg>
+    </button>
+    <!-- Tasks -->
+    <button class="icon-btn" aria-label="할일">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 11 12 14 22 4"/>
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+      </svg>
+    </button>
+
+    <div class="hd"></div>
+
+    <!-- Apps grid -->
+    <button class="icon-btn" aria-label="앱">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M6 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6-8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6-8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<div class="day-labels" aria-hidden="true">
+  <span>일</span><span>월</span><span>화</span>
+  <span>수</span><span>목</span><span>금</span><span>토</span>
+</div>
+
+<div class="cal-grid" id="cal-grid" role="grid"></div>
+
+<!-- Add / Edit modal -->
+<dialog class="event-modal" id="event-modal" aria-labelledby="modal-title">
+  <div class="modal-inner">
+    <h2 class="modal-title" id="modal-title">일정 추가</h2>
+
+    <form id="event-form" novalidate>
+      <input type="hidden" id="event-id" />
+
+      <div class="field">
+        <label for="event-title">제목 <span class="required">*</span></label>
+        <input type="text" id="event-title" maxlength="100" autocomplete="off" />
+        <span class="field-error" id="err-title"></span>
+      </div>
+
+      <div class="field">
+        <label for="event-date">날짜 <span class="required">*</span></label>
+        <input type="date" id="event-date" />
+        <span class="field-error" id="err-date"></span>
+      </div>
+
+      <div class="field-row">
         <div class="field">
-          <label for="event-title">Title <span class="required">*</span></label>
-          <input type="text" id="event-title" maxlength="100" autocomplete="off" />
-          <span class="field-error" id="err-title"></span>
+          <label for="event-start">시작 시간</label>
+          <input type="time" id="event-start" />
         </div>
-
         <div class="field">
-          <label for="event-date">Date <span class="required">*</span></label>
-          <input type="date" id="event-date" />
-          <span class="field-error" id="err-date"></span>
+          <label for="event-end">종료 시간</label>
+          <input type="time" id="event-end" />
+          <span class="field-error" id="err-time"></span>
         </div>
+      </div>
 
-        <div class="field-row">
-          <div class="field">
-            <label for="event-start">Start time</label>
-            <input type="time" id="event-start" />
-          </div>
-          <div class="field">
-            <label for="event-end">End time</label>
-            <input type="time" id="event-end" />
-            <span class="field-error" id="err-time"></span>
-          </div>
+      <div class="field">
+        <label for="event-notes">메모</label>
+        <textarea id="event-notes" maxlength="500" rows="3"></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-danger" id="btn-delete" hidden>삭제</button>
+        <div class="modal-actions-right">
+          <button type="button" class="btn-secondary" id="btn-cancel">취소</button>
+          <button type="submit" class="btn-primary" id="btn-save">저장</button>
         </div>
+      </div>
+    </form>
+  </div>
+</dialog>
 
-        <div class="field">
-          <label for="event-notes">Notes</label>
-          <textarea id="event-notes" maxlength="500" rows="3"></textarea>
-        </div>
-
-        <div class="modal-actions">
-          <button type="button" class="btn-danger" id="btn-delete" hidden>Delete</button>
-          <div class="modal-actions-right">
-            <button type="button" class="btn-secondary" id="btn-cancel">Cancel</button>
-            <button type="submit" class="btn-primary" id="btn-save">Save</button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </dialog>
-
-  <script>
+<script>
 'use strict';
 
 /* ── State ─────────────────────────────────────────────────── */
 const state = {
-  year:   new Date().getFullYear(),
-  month:  new Date().getMonth(),   // 0-indexed
-  events: [],
+  year:      new Date().getFullYear(),
+  month:     new Date().getMonth(),
+  events:    [],
   editingId: null,
 };
 
 const STORAGE_KEY = 'calendarEvents';
 
-/* ── UUID fallback (works on file:// and older browsers) ───── */
 function uuid() {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
     const r = Math.random() * 16 | 0;
     return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
   });
 }
 
-/* ── LocalStorage helpers ──────────────────────────────────── */
+/* ── LocalStorage ───────────────────────────────────────────── */
 function loadEvents() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     const parsed = raw ? JSON.parse(raw) : [];
     return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  } catch { return []; }
 }
 
 function saveEvents() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.events));
 }
 
-/* ── Event CRUD ────────────────────────────────────────────── */
+/* ── CRUD ───────────────────────────────────────────────────── */
 function addEvent(data) {
   state.events.push({ id: uuid(), ...data });
   saveEvents();
@@ -425,10 +529,7 @@ function addEvent(data) {
 
 function updateEvent(id, data) {
   const idx = state.events.findIndex(e => e.id === id);
-  if (idx !== -1) {
-    state.events[idx] = { id, ...data };
-    saveEvents();
-  }
+  if (idx !== -1) { state.events[idx] = { id, ...data }; saveEvents(); }
 }
 
 function deleteEvent(id) {
@@ -436,26 +537,23 @@ function deleteEvent(id) {
   saveEvents();
 }
 
-/* ── Calendar rendering ────────────────────────────────────── */
-const MONTHS = [
-  'January','February','March','April','May','June',
-  'July','August','September','October','November','December',
-];
+/* ── Render ─────────────────────────────────────────────────── */
+const MONTHS_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 
 function renderCalendar() {
   const { year, month } = state;
 
-  document.getElementById('cal-title').textContent = `${MONTHS[month]} ${year}`;
+  document.getElementById('cal-title').textContent = `${year}년 ${MONTHS_KO[month]}`;
 
-  const grid = document.getElementById('cal-grid');
-  grid.innerHTML = '';
+  const grid        = document.getElementById('cal-grid');
+  grid.innerHTML    = '';
 
   const firstDay    = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const daysInPrev  = new Date(year, month, 0).getDate();
 
-  const today    = new Date();
-  const todayStr = toDateStr(today.getFullYear(), today.getMonth(), today.getDate());
+  const now      = new Date();
+  const todayStr = toDateStr(now.getFullYear(), now.getMonth(), now.getDate());
 
   const eventMap = buildEventMap();
 
@@ -464,45 +562,60 @@ function renderCalendar() {
     cell.className = 'day-cell';
     cell.setAttribute('role', 'gridcell');
 
-    let dayNum, cellYear, cellMonth;
+    let dayNum, cellYear, cellMonth, isOutside;
 
     if (i < firstDay) {
-      dayNum     = daysInPrev - firstDay + i + 1;
-      cellMonth  = month - 1 < 0 ? 11 : month - 1;
-      cellYear   = month - 1 < 0 ? year - 1 : year;
+      dayNum    = daysInPrev - firstDay + i + 1;
+      cellMonth = month - 1 < 0 ? 11 : month - 1;
+      cellYear  = month - 1 < 0 ? year - 1 : year;
+      isOutside = true;
       cell.classList.add('outside');
     } else if (i < firstDay + daysInMonth) {
       dayNum    = i - firstDay + 1;
       cellMonth = month;
       cellYear  = year;
+      isOutside = false;
     } else {
       dayNum    = i - firstDay - daysInMonth + 1;
       cellMonth = month + 1 > 11 ? 0 : month + 1;
       cellYear  = month + 1 > 11 ? year + 1 : year;
+      isOutside = true;
       cell.classList.add('outside');
     }
 
     const dateStr = toDateStr(cellYear, cellMonth, dayNum);
-    if (dateStr === todayStr) cell.classList.add('today');
+    const isToday = dateStr === todayStr;
+    if (isToday) cell.classList.add('today');
 
+    // Day number label
+    // When dayNum === 1 (and not today), show "M월 1일" format
+    const numWrap = document.createElement('div');
+    numWrap.className = 'day-num-wrap';
     const numEl = document.createElement('div');
     numEl.className = 'day-num';
-    numEl.textContent = dayNum;
-    cell.appendChild(numEl);
+    if (isToday) {
+      numEl.textContent = dayNum;
+    } else if (dayNum === 1) {
+      numEl.textContent = `${cellMonth + 1}월 1일`;
+    } else {
+      numEl.textContent = dayNum;
+    }
+    numWrap.appendChild(numEl);
+    cell.appendChild(numWrap);
 
+    // Event bars
     const cellEvents = eventMap[dateStr] || [];
     const MAX_VISIBLE = 3;
     cellEvents.slice(0, MAX_VISIBLE).forEach(ev => cell.appendChild(createChip(ev)));
-
     if (cellEvents.length > MAX_VISIBLE) {
       const more = document.createElement('span');
       more.className = 'overflow-label';
-      more.textContent = `+${cellEvents.length - MAX_VISIBLE} more`;
+      more.textContent = `+${cellEvents.length - MAX_VISIBLE}개 더보기`;
       more.addEventListener('click', e => { e.stopPropagation(); openModal(dateStr); });
       cell.appendChild(more);
     }
 
-    if (!cell.classList.contains('outside')) {
+    if (!isOutside) {
       cell.addEventListener('click', () => openModal(dateStr));
     }
 
@@ -536,12 +649,11 @@ function buildEventMap() {
   return map;
 }
 
-/* ── Date utility — m is 0-indexed ────────────────────────── */
 function toDateStr(y, m, d) {
   return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 }
 
-/* ── Modal elements ────────────────────────────────────────── */
+/* ── Modal ──────────────────────────────────────────────────── */
 const modal      = document.getElementById('event-modal');
 const form       = document.getElementById('event-form');
 const modalTitle = document.getElementById('modal-title');
@@ -562,16 +674,16 @@ let deleteConfirming = false;
 function openModal(dateStr, eventId = null) {
   clearErrors();
   deleteConfirming = false;
-  btnDelete.textContent = 'Delete';
+  btnDelete.textContent = '삭제';
   btnDelete.classList.remove('confirming');
 
   if (eventId) {
     const ev = state.events.find(e => e.id === eventId);
     if (!ev) return;
-    state.editingId   = eventId;
-    modalTitle.textContent = 'Edit Event';
-    btnSave.textContent    = 'Update';
-    btnDelete.hidden  = false;
+    state.editingId        = eventId;
+    modalTitle.textContent = '일정 수정';
+    btnSave.textContent    = '저장';
+    btnDelete.hidden       = false;
     fId.value    = ev.id;
     fTitle.value = ev.title;
     fDate.value  = ev.date;
@@ -579,10 +691,10 @@ function openModal(dateStr, eventId = null) {
     fEnd.value   = ev.end   || '';
     fNotes.value = ev.notes || '';
   } else {
-    state.editingId   = null;
-    modalTitle.textContent = 'Add Event';
-    btnSave.textContent    = 'Save';
-    btnDelete.hidden  = true;
+    state.editingId        = null;
+    modalTitle.textContent = '일정 추가';
+    btnSave.textContent    = '저장';
+    btnDelete.hidden       = true;
     fId.value    = '';
     fTitle.value = '';
     fDate.value  = dateStr;
@@ -600,30 +712,26 @@ function closeModal() {
   state.editingId = null;
 }
 
-/* ── Validation ────────────────────────────────────────────── */
+/* ── Validation ─────────────────────────────────────────────── */
 function validate() {
   clearErrors();
   let ok = true;
-  if (!fTitle.value.trim()) { showError(errTitle, fTitle, 'Title is required.'); ok = false; }
-  if (!fDate.value)         { showError(errDate,  fDate,  'Date is required.');  ok = false; }
+  if (!fTitle.value.trim()) { showError(errTitle, fTitle, '제목을 입력해주세요.'); ok = false; }
+  if (!fDate.value)         { showError(errDate, fDate,   '날짜를 선택해주세요.'); ok = false; }
   if (fStart.value && fEnd.value && fEnd.value <= fStart.value) {
-    showError(errTime, fEnd, 'End time must be after start time.');
+    showError(errTime, fEnd, '종료 시간은 시작 시간 이후여야 합니다.');
     ok = false;
   }
   return ok;
 }
 
-function showError(errEl, inputEl, msg) {
-  errEl.textContent = msg;
-  inputEl.classList.add('error');
-}
-
+function showError(errEl, inputEl, msg) { errEl.textContent = msg; inputEl.classList.add('error'); }
 function clearErrors() {
   [errTitle, errDate, errTime].forEach(el => { el.textContent = ''; });
   [fTitle, fDate, fEnd].forEach(el => el.classList.remove('error'));
 }
 
-/* ── Form submit ───────────────────────────────────────────── */
+/* ── Form submit ────────────────────────────────────────────── */
 form.addEventListener('submit', e => {
   e.preventDefault();
   if (!validate()) return;
@@ -640,11 +748,11 @@ form.addEventListener('submit', e => {
   renderCalendar();
 });
 
-/* ── Delete with two-click confirmation ────────────────────── */
+/* ── Delete ─────────────────────────────────────────────────── */
 btnDelete.addEventListener('click', () => {
   if (!deleteConfirming) {
     deleteConfirming = true;
-    btnDelete.textContent = 'Confirm delete?';
+    btnDelete.textContent = '정말 삭제하시겠습니까?';
     btnDelete.classList.add('confirming');
     return;
   }
@@ -653,33 +761,36 @@ btnDelete.addEventListener('click', () => {
   renderCalendar();
 });
 
-/* ── Cancel & backdrop close ───────────────────────────────── */
+/* ── Modal close ────────────────────────────────────────────── */
 document.getElementById('btn-cancel').addEventListener('click', closeModal);
-
 modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
-
 modal.addEventListener('close', () => {
   deleteConfirming = false;
   btnDelete.classList.remove('confirming');
-  btnDelete.textContent = 'Delete';
+  btnDelete.textContent = '삭제';
 });
 
-/* ── Navigation ────────────────────────────────────────────── */
+/* ── Navigation ─────────────────────────────────────────────── */
+document.getElementById('btn-today').addEventListener('click', () => {
+  const now = new Date();
+  state.year  = now.getFullYear();
+  state.month = now.getMonth();
+  renderCalendar();
+});
+
 document.getElementById('btn-prev').addEventListener('click', () => {
-  state.month--;
-  if (state.month < 0) { state.month = 11; state.year--; }
+  if (--state.month < 0) { state.month = 11; state.year--; }
   renderCalendar();
 });
 
 document.getElementById('btn-next').addEventListener('click', () => {
-  state.month++;
-  if (state.month > 11) { state.month = 0; state.year++; }
+  if (++state.month > 11) { state.month = 0; state.year++; }
   renderCalendar();
 });
 
-/* ── Init ──────────────────────────────────────────────────── */
+/* ── Init ───────────────────────────────────────────────────── */
 state.events = loadEvents();
 renderCalendar();
-  </script>
+</script>
 </body>
 </html>

@@ -1,127 +1,75 @@
-# Calendar App — Build Plan
+# Calendar App — UI Redesign (Google Calendar Style)
 
-## Stack
-Plain HTML + CSS + Vanilla JS (single `index.html`, no build step, no dependencies).
+## 변경 목표
+이미지 참고 — Google Calendar와 동일한 레이아웃·스타일로 전면 개편.
+기능(CRUD, localStorage, validation)은 그대로 유지.
 
 ---
 
 ## Tasks
 
-### 1. Project scaffold
-- [x] Create `index.html` with document structure, viewport meta, and linked `style.css` / `app.js`
-- [x] Create `style.css` with CSS reset and CSS custom properties (color palette, spacing)
-- [x] Create `app.js` with module skeleton (state object, init function)
+### 1. 레이아웃 전환
+- [ ] 카드 wrapper 제거 → 전체 뷰포트를 채우는 full-height 레이아웃
+- [ ] `display: flex; flex-direction: column; height: 100vh` 구조로 변경
+- [ ] 그리드가 남은 공간을 모두 차지하도록 (`flex: 1`)
 
 **Acceptance criteria:**
-- Opening `index.html` in a browser shows a blank page with no console errors.
-- `style.css` and `app.js` load successfully (Network tab shows 200).
+- 스크롤 없이 한 화면에 달력 전체가 표시된다.
 
 ---
 
-### 2. Month grid rendering
-- [x] Implement `renderCalendar(year, month)` — builds a 6-row × 7-col grid
-- [x] Add month/year header with Previous / Next navigation buttons
-- [x] Shade days outside the current month (greyed out)
-- [x] Highlight today's date
+### 2. 헤더 재설계
+- [ ] 좌측: "오늘" 버튼, `<` `>` 내비게이션, "2026년 4월" 형식 타이틀
+- [ ] 우측: 아이콘 그룹(검색·도움말·설정) + "월 ▾" 뷰 선택 드롭다운(UI만) + 아이콘 2개 + 그리드 아이콘
+- [ ] 헤더 하단에 얇은 border
 
 **Acceptance criteria:**
-- Correct day-of-week alignment for any month (Jan 2026 starts on Thursday, etc.).
-- Clicking Previous / Next updates the header and grid.
-- Today is visually distinct (ring or background highlight).
-- Days outside the current month are visually muted.
+- "오늘" 클릭 시 현재 월로 이동.
+- 타이틀이 "YYYY년 M월" 형식으로 표시된다.
 
 ---
 
-### 3. LocalStorage persistence layer
-- [x] Implement `loadEvents()` — reads `calendarEvents` key from localStorage, returns parsed array (or `[]`)
-- [x] Implement `saveEvents(events)` — serializes array to JSON and writes to localStorage
-- [x] Expose a single `state.events` array used throughout the app
+### 3. 요일 헤더 한국어화
+- [ ] 영문 Sun~Sat → 한국어 일~토
+- [ ] 폰트 크기 작게, 컬럼 상단에 날짜 번호와 함께 배치
 
 **Acceptance criteria:**
-- After adding an event and refreshing the page, the event reappears.
-- Corrupt / missing localStorage key is handled gracefully (falls back to `[]`).
+- 요일 레이블이 일, 월, 화, 수, 목, 금, 토 순서로 표시된다.
 
 ---
 
-### 4. Event display on grid
-- [x] After rendering the grid, attach event dots/chips to matching day cells
-- [x] Clip overflow: show max 3 events per cell + "+N more" indicator when exceeded
+### 4. 날짜 셀 재설계
+- [ ] 날짜 숫자를 셀 우측 상단으로 이동 (좌측 아님)
+- [ ] 오늘 날짜: 파란 원(filled circle) 안에 흰 숫자
+- [ ] 이전·다음 달 날짜: "4월 1일", "5월 1일" 형식으로 표시 (월 포함)
+- [ ] 셀 배경 흰색, 테두리 매우 얇은 연회색
 
 **Acceptance criteria:**
-- Events saved in localStorage appear on the correct day cells.
-- Cells with > 3 events show "+N more" instead of overflowing.
+- 오늘 날짜에 파란 원이 표시된다.
+- 다른 달 날짜는 "M월 D일" 형식으로 회색 표시된다.
 
 ---
 
-### 5. Add-event modal
-- [x] Create modal HTML (`<dialog>` element) with fields: Title, Date, Start time, End time, Notes
-- [x] Open modal when user clicks a day cell (pre-fill the date field)
-- [x] "Save" button calls `addEvent()` and closes modal
-- [x] "Cancel" button closes modal without saving
-- [x] Clicking the backdrop closes modal without saving
+### 5. 이벤트 칩 재설계
+- [ ] 현재 작은 칩 → 셀 가로 전체를 차지하는 bar 형태
+- [ ] 텍스트 좌측 정렬, 약간의 좌우 패딩
+- [ ] 색상: 기본 파란계열, 이벤트 종류에 따라 다르게 (기본 1가지 색)
+- [ ] 클릭 시 편집 모달 오픈 (기존 동작 유지)
 
 **Acceptance criteria:**
-- Modal opens with the clicked date pre-filled.
-- Pressing Escape or clicking outside dismisses the modal.
-- Saving appends the event to `state.events` and re-renders the grid.
+- 이벤트가 셀 너비 전체에 걸쳐 bar로 표시된다.
+- 클릭하면 편집 모달이 열린다.
 
 ---
 
-### 6. Edit & delete events
-- [x] Clicking an event chip opens the modal in edit mode (fields pre-filled)
-- [x] "Update" button calls `updateEvent(id)` and re-renders
-- [x] "Delete" button (red, with confirmation) calls `deleteEvent(id)` and re-renders
-- [x] Modal title changes to "Edit Event" vs "Add Event"
+### 6. 모달 스타일 개선
+- [ ] 구글 캘린더 팝업처럼 깔끔한 스타일 유지 (기존 기능 그대로)
+- [ ] 불필요한 box-shadow, border-radius 과도함 제거
 
 **Acceptance criteria:**
-- Editing an event updates it in place (same `id`).
-- Deleting an event removes it from localStorage and the grid immediately.
-- Delete requires a confirmation step (inline confirm — second click).
-
----
-
-### 7. Basic validation
-- [x] Show inline error if Title is empty on Save/Update
-- [x] Show inline error if End time is before Start time (when both are set)
-- [x] Prevent saving while validation errors are present
-
-**Acceptance criteria:**
-- Attempting to save with an empty title shows an error message inside the modal (no `alert()`).
-- End-before-start triggers a clear error message.
-- No event is written to localStorage while errors exist.
-
----
-
-### 8. Responsive layout (US locale)
-- [x] Day-of-week header: Sun → Sat (US week start)
-- [x] CSS grid adapts to mobile: smaller cells, truncated event text, touch-friendly tap targets (≥ 44 px)
-- [x] Modal is full-screen on small viewports (< 480 px)
-
-**Acceptance criteria:**
-- Layout is usable on 375 px wide viewport (iPhone SE).
-- Day headers show abbreviated names (Sun, Mon, … Sat).
-- No horizontal scrollbar on any viewport ≥ 320 px.
+- 모달이 열리고 저장/편집/삭제가 정상 동작한다.
 
 ---
 
 ## Review
-
-### What was built
-Three files — `index.html`, `style.css`, `app.js` — no dependencies, no build step.
-
-| Area | Implementation notes |
-|------|----------------------|
-| Grid | Fixed 6×7 (42 cells) with `firstDay` offset for any month. Overflow cells are muted and non-clickable. |
-| Persistence | `loadEvents` / `saveEvents` with try/catch around `JSON.parse`; falls back to `[]`. Key: `calendarEvents`. |
-| Events on grid | `buildEventMap` groups events by `dateStr`; max 3 chips shown, rest collapsed to "+N more". |
-| Modal | Native `<dialog>` with `showModal()` / `close()`. Backdrop click detected via `e.target === modal`. |
-| Edit / Delete | Single modal handles both modes. Delete uses a two-click inline confirm (button text changes to "Confirm delete?"). |
-| Validation | Inline `<span>` error messages; `.error` CSS class on inputs; no `alert()`. |
-| Responsive | `@media (max-width: 600px)` shrinks cells and slides modal up as a bottom sheet. Sun–Sat US week order throughout. |
-
-### Follow-up items (not in scope)
-- Recurring events
-- Drag-to-reschedule
-- Week / day view toggle
-- Color coding per event
-- Export to `.ics`
+_(완료 후 추가)_
